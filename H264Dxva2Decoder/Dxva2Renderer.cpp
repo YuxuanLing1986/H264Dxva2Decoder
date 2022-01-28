@@ -12,7 +12,8 @@ CDxva2Renderer::CDxva2Renderer() :
 	m_dwPicturePresent(0),
 	m_DxvaDeviceType(DXVAHD_DEVICE_TYPE_HARDWARE),
 	m_InputPool(D3DPOOL_DEFAULT),
-	m_bUseBT709(FALSE)
+	m_bUseBT709(FALSE),
+	m_pFYUV(NULL)
 {
 	ResetDxvaCaps();
 	ZeroMemory(&m_LastPresentation, sizeof(SAMPLE_PRESENTATION));
@@ -513,7 +514,7 @@ HRESULT CDxva2Renderer::GetDxva2Filter(IDXVAHD_Device* pDXVAHD, const DXVAHD_FIL
 
 		IF_FAILED_RETURN(pDXVAHD->GetVideoProcessorFilterRange(Filter, pFilterRange));
 		pFilterRange->iCurrent = pFilterRange->Default;
-		assert(pFilterRange->Multiplier == 1.0f);
+		//assert(pFilterRange->Multiplier == 1.0f);
 	}
 
 	return hr;

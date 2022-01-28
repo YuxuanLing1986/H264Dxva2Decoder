@@ -30,6 +30,7 @@ public:
 private:
 
 	// DirectX9Ex
+	FILE* m_pFYUV;
 	IDirect3D9Ex* m_pD3D9Ex;
 	IDirect3DDevice9Ex* m_pDevice9Ex;
 	IDirect3DDeviceManager9* m_pDirect3DDeviceManager9;

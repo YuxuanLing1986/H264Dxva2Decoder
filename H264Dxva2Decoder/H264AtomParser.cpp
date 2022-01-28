@@ -52,7 +52,8 @@ HRESULT CH264AtomParser::ParseMp4(){
 
 		IF_FAILED_THROW(ParseAtoms(sRootAtom));
 
-		IF_FAILED_THROW(sRootAtom.bFTYP && sRootAtom.bMOOV && sRootAtom.bMDAT ? S_OK : E_FAIL);
+		//IF_FAILED_THROW(sRootAtom.bFTYP && sRootAtom.bMOOV && sRootAtom.bMDAT ? S_OK : E_FAIL);
+		IF_FAILED_THROW(sRootAtom.bFTYP && sRootAtom.bMDAT ? S_OK : E_FAIL);
 
 		for(auto& TrackInfo : m_vTrackInfo){
 

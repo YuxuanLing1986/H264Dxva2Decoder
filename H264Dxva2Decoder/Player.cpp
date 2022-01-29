@@ -472,7 +472,7 @@ HRESULT CPlayer::ProcessDecoding(){
 	LONGLONG llTime = 0LL;
 	int iSubSliceCount = 0;
 	DWORD dwParsed;
-	BYTE btStartCode[4] = {0x00, 0x00, 0x00, 0x01};
+	BYTE btStartCode[4] = {0x00, 0x00, 0x01};
 
 	IF_FAILED_RETURN(m_cH264AtomParser.GetNextSample(m_dwTrackId, &pVideoData, &dwBufferSize, &llTime));
 
@@ -511,14 +511,19 @@ HRESULT CPlayer::ProcessDecoding(){
 
 				// DXVA2 needs start code
 				if(m_iNaluLenghtSize == 4){
-					memcpy(m_pNalUnitBuffer.GetStartBuffer(), btStartCode, 4);
+					//memcpy(m_pNalUnitBuffer.GetStartBuffer(), btStartCode, 3);
+                    memcpy(m_pNalUnitBuffer.GetStartBuffer(), m_pNalUnitBuffer.GetStartBuffer() + 1,  m_pNalUnitBuffer.GetBufferSize());
+                    memcpy(m_pNalUnitBuffer.GetStartBuffer(), btStartCode, 3);
+					m_pNalUnitBuffer.SetEndPosition(-1);
+
 				}
 				else{
 					IF_FAILED_THROW(AddByteAndConvertAvccToAnnexB(m_pNalUnitBuffer));
 					dwParsed += 1;
 				}
 
-				IF_FAILED_THROW(m_cDxva2Decoder.AddSliceShortInfo(iSubSliceCount, dwParsed, m_iNaluLenghtSize == 4));
+				//IF_FAILED_THROW(m_cDxva2Decoder.AddSliceShortInfo(iSubSliceCount, dwParsed, m_iNaluLenghtSize == 4));
+				IF_FAILED_THROW(m_cDxva2Decoder.AddSliceShortInfo(iSubSliceCount, dwParsed, 0));
 
 				if(m_pVideoBuffer.GetBufferSize() == 0){
 

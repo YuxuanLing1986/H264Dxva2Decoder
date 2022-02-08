@@ -385,22 +385,13 @@ HRESULT CH264NaluParser::ParsePPS(){
 		return hr;
 	}
 
-	if(bits <= 8){
+	if(bits <= 32){
 
-		BYTE trail_check = (BYTE)m_cBitStream.PeekBits(bits);
+		int trail_check = m_cBitStream.PeekBits(bits);
 
-		if(trail_check == TrailingBits[bits]){
+		if(trail_check == (1<<(bits - 1)) ){
 			return hr;
 		}
-	}
-	else if (bits <= 16)
-	{
-        int trail_check = (int)m_cBitStream.PeekBits(bits);
-
-        if ((trail_check >> 8) == TrailingBits[bits - 8] && ((trail_check &0xFF) == 0)) {
-            return hr;
-        }
-
 	}
 
 	pPPS->transform_8x8_mode_flag = m_cBitStream.GetBits(1) ? TRUE : FALSE;

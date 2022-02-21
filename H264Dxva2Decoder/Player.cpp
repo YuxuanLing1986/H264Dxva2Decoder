@@ -2,7 +2,7 @@
 // Player.cpp
 //----------------------------------------------------------------------------------------------
 #include "Stdafx.h"
-#define   USE_STRICT_SHORT_SLICE_CFG  1
+//#define   USE_STRICT_SHORT_SLICE_CFG  1
 CPlayer::CPlayer(HRESULT& hr, IMFAsyncCallback* pWindowCallback) :
 	m_nRefCount(1),
 	m_pWindowCallback(NULL),

@@ -176,7 +176,10 @@ HRESULT CDxva2Decoder::DecodeFrame(CMFBuffer& cMFNaluBuffer, const PICTURE_INFO&
 		IF_FAILED_THROW(m_pVideoDecoder->GetBuffer(DXVA2_BitStreamDateBufferType, &pBuffer, &uiSize));
 		// todo : if iSubSliceCount > 1, perhaps we need to do AddNalUnitBufferPadding for each sub-slices
 		IF_FAILED_THROW(AddNalUnitBufferPadding(cMFNaluBuffer, uiSize));
-		assert(cMFNaluBuffer.GetBufferSize() <= uiSize);
+		if (cMFNaluBuffer.GetBufferSize() > uiSize) {
+			MessageBox(NULL, L"Allocated BitStream Buffer Size to Small , will Exit", L"Error", MB_OK);
+			exit(-1);
+		}
 		memcpy(pBuffer, cMFNaluBuffer.GetStartBuffer(), cMFNaluBuffer.GetBufferSize());
 		IF_FAILED_THROW(m_pVideoDecoder->ReleaseBuffer(DXVA2_BitStreamDateBufferType));
 

@@ -1087,7 +1087,7 @@ HRESULT CH264AtomParser::ParseSampleDescHeader(TRACK_INFO& TrackInfo, BYTE* pDat
 		assert(dwAtomSize != 0 && dwAtomSize != 1);
 
 		switch(dwAtomType){
-
+		    case ATOM_TYPE_HEV1:
 			case ATOM_TYPE_AVC1:
 				IF_FAILED_RETURN(ParseAvc1Format(&TrackInfo.pConfig, pData, dwAtomSize));
 				break;
@@ -1406,7 +1406,7 @@ HRESULT CH264AtomParser::ParseAvc1Format(CMFLightBuffer** ppConfig, const BYTE* 
 		assert(dwAtomSize != 0 && dwAtomSize != 1);
 
 		switch(dwAtomType){
-
+		    case ATOM_TYPE_HVCC:
 			case ATOM_TYPE_AVCC:
 				IF_FAILED_RETURN(ParseVideoConfigDescriptor(ppConfig, pData + 8, dwAtomSize - 8));
 				break;

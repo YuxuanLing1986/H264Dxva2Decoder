@@ -10,6 +10,6 @@
     <RemoteDebuggerCommand>C:\FFmpeg\H264Dxva2Decoder.exe</RemoteDebuggerCommand>
     <RemoteDebuggerWorkingDirectory>C:\FFmpeg\</RemoteDebuggerWorkingDirectory>
     <RemoteDebuggerServerName>LINGYUXUAN-DT</RemoteDebuggerServerName>
-    <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

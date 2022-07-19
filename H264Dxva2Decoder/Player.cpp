@@ -175,8 +175,8 @@ HRESULT CPlayer::OpenFile(const HWND hWnd, LPCWSTR lpwszFile){
 
 	HRESULT hr;
 	BYTE* pVideoData = NULL;
-	DWORD dwBufferSize;
-	MFTIME llMovieDuration = 0LL;
+	DWORD dwBufferSize = 0;
+	MFTIME llMovieDuration = 622800000LL;
 	DXVA2_VideoDesc Dxva2Desc;
 
 	IF_FAILED_RETURN(IsShutdown() ? MF_E_SHUTDOWN : S_OK);
@@ -190,16 +190,15 @@ HRESULT CPlayer::OpenFile(const HWND hWnd, LPCWSTR lpwszFile){
 	IF_FAILED_RETURN(m_cH264AtomParser.GetFirstVideoStream(&m_dwTrackId));
 	IF_FAILED_RETURN(m_cH264AtomParser.GetVideoConfigDescriptor(m_dwTrackId, &pVideoData, &dwBufferSize));
 	IF_FAILED_RETURN(m_cH264NaluParser.ParseVideoConfigDescriptor(pVideoData, dwBufferSize));
-	IF_FAILED_RETURN(m_cH264AtomParser.GetVideoDuration(m_dwTrackId, llMovieDuration));
-	IF_FAILED_RETURN(llMovieDuration == 0 ? E_UNEXPECTED : S_OK);
+	//IF_FAILED_RETURN(m_cH264AtomParser.GetVideoDuration(m_dwTrackId, llMovieDuration));
+	//IF_FAILED_RETURN(llMovieDuration == 0 ? E_UNEXPECTED : S_OK);
 
-	DXVA2_Frequency Dxva2Freq;
-	IF_FAILED_RETURN(m_cH264AtomParser.GetVideoFrameRate(m_dwTrackId, &Dxva2Freq.Numerator, &Dxva2Freq.Denominator));
-	IF_FAILED_RETURN(m_cDxva2Renderer.InitDXVA2(hWnd, m_cH264NaluParser.GetWidth(), m_cH264NaluParser.GetHeight(), Dxva2Freq.Numerator, Dxva2Freq.Denominator, Dxva2Desc, llMovieDuration));
+	int Dxva2FreqNumer = 25, Dxva2FreqDenom = 1;
+    IF_FAILED_RETURN(m_cDxva2Renderer.InitDXVA2(hWnd, m_cH264NaluParser.GetWidth(), m_cH264NaluParser.GetHeight(), Dxva2FreqNumer, Dxva2FreqDenom, Dxva2Desc, llMovieDuration));
 	IF_FAILED_RETURN(m_cDxva2Decoder.InitVideoDecoder(m_cDxva2Renderer.GetDeviceManager9(), &Dxva2Desc, m_cH264NaluParser.GetSPS()));
 
 	UINT64 AvgTimePerFrame;
-	IF_FAILED_RETURN(MFFrameRateToAverageTimePerFrame(Dxva2Freq.Numerator, Dxva2Freq.Denominator, &AvgTimePerFrame));
+	IF_FAILED_RETURN(MFFrameRateToAverageTimePerFrame(Dxva2FreqNumer, Dxva2FreqDenom, &AvgTimePerFrame));
 	m_llPerFrame_1_4th = AvgTimePerFrame / 4;
 	m_llPerFrame_3_4th = AvgTimePerFrame - m_llPerFrame_1_4th;
 
@@ -469,13 +468,13 @@ HRESULT CPlayer::ProcessDecoding(){
 	BYTE* pVideoData = NULL;
 	DWORD dwBufferSize;
 
-	LONGLONG llTime = 0LL;
+	LONGLONG llTime = 2000000LL;
 	int iSubSliceCount = 0;
 	DWORD dwParsed;
 	
 
 	IF_FAILED_RETURN(m_cH264AtomParser.GetNextSample(m_dwTrackId, &pVideoData, &dwBufferSize, &llTime));
-
+	llTime = 2000000LL;
 	if(hr == S_FALSE){
 
 		m_bFinish = TRUE;

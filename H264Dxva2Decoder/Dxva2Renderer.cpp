@@ -141,7 +141,7 @@ HRESULT CDxva2Renderer::RenderFrame(IDirect3DSurface9** pSurface9, const SAMPLE_
 		IF_FAILED_THROW(m_pDXVAVP->VideoProcessBltHD(pRT, SamplePresentation.dwDXVA2Index, 1, &stream_data));
 
 #ifdef USE_DIRECTX9
-		IF_FAILED_THROW(DrawMovieText(m_pDevice9Ex, SamplePresentation.llTime));
+		//IF_FAILED_THROW(DrawMovieText(m_pDevice9Ex, SamplePresentation.llTime));
 #endif
 
 #ifdef HANDLE_DIRECTX_ERROR_UNDOCUMENTED
@@ -222,7 +222,7 @@ HRESULT CDxva2Renderer::RenderLastFramePresentation(IDirect3DSurface9** pSurface
 		IF_FAILED_THROW(m_pDXVAVP->VideoProcessBltHD(pRT, m_LastPresentation.dwDXVA2Index, 1, &stream_data));
 
 #ifdef USE_DIRECTX9
-		IF_FAILED_THROW(DrawMovieText(m_pDevice9Ex, m_LastPresentation.llTime));
+		//IF_FAILED_THROW(DrawMovieText(m_pDevice9Ex, m_LastPresentation.llTime));
 #endif
 
 #ifdef HANDLE_DIRECTX_ERROR_UNDOCUMENTED

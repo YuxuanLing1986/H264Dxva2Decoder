@@ -182,14 +182,15 @@ HRESULT CPlayer::OpenFile(const HWND hWnd, LPCWSTR lpwszFile){
 	IF_FAILED_RETURN(IsShutdown() ? MF_E_SHUTDOWN : S_OK);
 	IF_FAILED_RETURN(m_hEventEndRendering == NULL ? S_OK : E_UNEXPECTED);
 
-	IF_FAILED_RETURN(m_cH264AtomParser.Initialize(lpwszFile));
-	IF_FAILED_RETURN(m_cH264AtomParser.ParseMp4());
+	IF_FAILED_RETURN(m_cH2645RawParser.Initialize(lpwszFile));
+	//IF_FAILED_RETURN(m_cH264AtomParser.ParseMp4());
 	m_iNaluLenghtSize = m_cH264AtomParser.GetNaluLenghtSize();
 	m_cH264NaluParser.SetNaluLenghtSize(m_iNaluLenghtSize);
 
 	IF_FAILED_RETURN(m_cH264AtomParser.GetFirstVideoStream(&m_dwTrackId));
 	IF_FAILED_RETURN(m_cH264AtomParser.GetVideoConfigDescriptor(m_dwTrackId, &pVideoData, &dwBufferSize));
 	IF_FAILED_RETURN(m_cH264NaluParser.ParseVideoConfigDescriptor(pVideoData, dwBufferSize));
+	//TODO: parse sps pps here
 	//IF_FAILED_RETURN(m_cH264AtomParser.GetVideoDuration(m_dwTrackId, llMovieDuration));
 	//IF_FAILED_RETURN(llMovieDuration == 0 ? E_UNEXPECTED : S_OK);
 
@@ -474,6 +475,7 @@ HRESULT CPlayer::ProcessDecoding(){
 	
 
 	IF_FAILED_RETURN(m_cH264AtomParser.GetNextSample(m_dwTrackId, &pVideoData, &dwBufferSize, &llTime));
+	//TODO: get picture data here
 	llTime = 2000000LL;
 	if(hr == S_FALSE){
 

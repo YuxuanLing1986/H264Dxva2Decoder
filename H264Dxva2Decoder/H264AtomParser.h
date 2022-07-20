@@ -134,4 +134,25 @@ private:
 	HRESULT SeekVideo(const TRACK_INFO&, const MFTIME);
 };
 
+
+class CH2645RawParser : public CH264AtomParser {
+
+public:
+
+    CH2645RawParser() {
+		CH264AtomParser::CH264AtomParser();
+    };
+    ~CH2645RawParser() { CH264AtomParser::Delete(); }
+	HRESULT GetNextPicRawData(const DWORD dwTrackId, BYTE** ppData, DWORD* pSize, LONGLONG* pllTime)
+	{
+		return CH264AtomParser::GetNextSample(dwTrackId, ppData, pSize, pllTime);
+	}
+
+	HRESULT Initialize(LPCWSTR wszFile)
+	{
+		return CH264AtomParser::Initialize(wszFile);
+	}
+};
+
+
 #endif

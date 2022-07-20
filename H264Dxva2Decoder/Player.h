@@ -44,6 +44,7 @@ private:
 	CriticSection m_CriticSection;
 	CriticSection m_CriticSectionDecoding;
 	CH264AtomParser m_cH264AtomParser;
+	CH2645RawParser m_cH2645RawParser;
 	CH264NaluParser m_cH264NaluParser;
 	CDxva2Decoder m_cDxva2Decoder;
 	CDxva2Renderer m_cDxva2Renderer;

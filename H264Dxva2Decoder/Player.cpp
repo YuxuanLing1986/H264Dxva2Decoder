@@ -189,6 +189,8 @@ HRESULT CPlayer::OpenFile(const HWND hWnd, LPCWSTR lpwszFile){
 
 	//IF_FAILED_RETURN(m_cH264AtomParser.GetFirstVideoStream(&m_dwTrackId));
 	//IF_FAILED_RETURN(m_cH264AtomParser.GetVideoConfigDescriptor(m_dwTrackId, &pVideoData, &dwBufferSize));
+
+	m_cH2645RawParser.GetNextNaluData(&pVideoData, &dwBufferSize);
 	IF_FAILED_RETURN(m_cH264NaluParser.ParseVideoConfigDescriptor(pVideoData, dwBufferSize));
 	//TODO: parse sps pps here
 	//IF_FAILED_RETURN(m_cH264AtomParser.GetVideoDuration(m_dwTrackId, llMovieDuration));

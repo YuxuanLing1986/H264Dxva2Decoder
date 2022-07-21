@@ -140,6 +140,8 @@ class CH2645RawParser : public CH264AtomParser {
 public:
 
     CH2645RawParser() {
+		m_lastNalPos = 0;
+		m_vPosInfo.push_back(m_lastNalPos);
 		CH264AtomParser::CH264AtomParser();
     };
     ~CH2645RawParser() { CH264AtomParser::Delete(); }
@@ -150,8 +152,12 @@ public:
 
 	HRESULT GetNextNaluData(BYTE** ppData, DWORD* pSize);
 
+	HRESULT ParseVideoSPSAndPPS();
+
 	HRESULT Initialize(LPCWSTR wszFile);
 	CMFBuffer m_cNaluParserBuffer;
+	int32_t   m_lastNalPos;
+	vector<int32_t> m_vPosInfo;
 };
 
 

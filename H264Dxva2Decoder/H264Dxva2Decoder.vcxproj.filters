@@ -134,6 +134,9 @@
     <ClCompile Include="Dxva2WindowsForm.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="H2645RawParser.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="H264Dxva2Decoder.rc">

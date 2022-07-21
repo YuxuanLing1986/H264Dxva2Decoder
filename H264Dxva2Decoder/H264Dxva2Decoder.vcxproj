@@ -50,6 +50,7 @@
     <ClCompile Include="Dxva2Decoder.cpp" />
     <ClCompile Include="Dxva2Renderer.cpp" />
     <ClCompile Include="Dxva2WindowsForm.cpp" />
+    <ClCompile Include="H2645RawParser.cpp" />
     <ClCompile Include="H264AtomParser.cpp" />
     <ClCompile Include="H264NaluParser.cpp" />
     <ClCompile Include="MFByteStream.cpp" />

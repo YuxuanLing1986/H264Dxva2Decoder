@@ -23,7 +23,7 @@ public:
 	HRESULT SeekVideo(const MFTIME, const DWORD);
 	const int GetNaluLenghtSize() const{ return m_iNaluLenghtSize; }
 
-private:
+public:
 
 	struct SAMPLE_INFO{
 
@@ -148,10 +148,10 @@ public:
 		return CH264AtomParser::GetNextSample(dwTrackId, ppData, pSize, pllTime);
 	}
 
-	HRESULT Initialize(LPCWSTR wszFile)
-	{
-		return CH264AtomParser::Initialize(wszFile);
-	}
+	HRESULT GetNextNaluData(BYTE** ppData, DWORD* pSize);
+
+	HRESULT Initialize(LPCWSTR wszFile);
+	CMFBuffer m_cNaluParserBuffer;
 };
 
 

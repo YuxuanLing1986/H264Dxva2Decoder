@@ -191,12 +191,29 @@ HRESULT CMFByteStream::Read(BYTE* pData, const DWORD dwSize, DWORD* pdwSize){
 	TRACE_BYTESTREAM((L"MFByteStream::Read"));
 
 	HRESULT hr;
-
-	if(ReadFile(m_hFile, pData, dwSize, pdwSize, 0)){
+	BOOL bResult =  ReadFile(m_hFile, pData, dwSize, pdwSize, 0);
+	DWORD dwError = GetLastError();
+	if(bResult){
 		hr = S_OK;
 	}
 	else{
-		hr = E_FAIL;
+		switch (dwError)
+		{
+		  case ERROR_HANDLE_EOF:
+		  {
+		  	printf("\nReadFile returned FALSE and EOF condition, async EOF not triggered.\n");
+		  	break;
+		  }
+		  case ERROR_IO_PENDING:
+		  {
+		  	hr = dwError;
+		  	break;
+		  }
+		  default:
+		  	break;
+		}
+		
+		hr = dwError;
 	}
 
 	return hr;

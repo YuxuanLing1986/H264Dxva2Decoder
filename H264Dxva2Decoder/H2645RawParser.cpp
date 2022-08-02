@@ -92,9 +92,9 @@ HRESULT CH2645RawParser::GetNextNaluData(BYTE** ppData, DWORD* pSize, int32_t *s
 
     m_pByteStream->Seek(m_lastNalPos);
 
-    //loop here until file or find pos
-    m_pByteStream->Read(m_cNaluParserBuffer.GetStartBuffer(), NALU_READ_SIZE, &bytesRead);
-    nextPos = SearchNextStartCode(m_cNaluParserBuffer.GetStartBuffer(), bytesRead, startCodeSz); //min(nextPos4, nextPos3);
+    //todo: loop here until file or find pos
+    hr = m_pByteStream->Read(m_cNaluParserBuffer.GetStartBuffer(), NALU_READ_SIZE, &bytesRead);
+    nextPos = SearchNextStartCode(m_cNaluParserBuffer.GetStartBuffer(), bytesRead, startCodeSz);
 
     if (nextPos != -1)
     {   

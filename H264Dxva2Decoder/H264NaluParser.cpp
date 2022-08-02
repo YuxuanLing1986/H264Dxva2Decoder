@@ -19,6 +19,100 @@ void CH264NaluParser::Reset(){
 	ZeroMemory(&m_Picture, sizeof(PICTURE_INFO));
 }
 
+
+HRESULT CH264NaluParser::ParseVideoConfigDescriptorParseSPS(const BYTE* pData, const DWORD dwSize) {
+
+    HRESULT hr;
+    DWORD dwNaluSize = 0;
+    DWORD dwLeft = dwSize;
+
+    IF_FAILED_RETURN(dwSize > 8 && pData != NULL ? S_OK : E_FAIL);
+
+    if (m_iNaluLenghtSize == 4 || m_iNaluLenghtSize == 3) {
+
+		dwNaluSize = dwSize - m_iNaluLenghtSize; //MAKE_DWORD(pData);
+    }
+    else {
+        // todo : size 1
+        IF_FAILED_RETURN(E_FAIL);
+    }
+
+    pData += m_iNaluLenghtSize;
+    dwLeft -= m_iNaluLenghtSize;
+
+    // uiForbiddenZeroBit
+    BYTE uiForbiddenZeroBit = *pData >> 7;
+
+    if (uiForbiddenZeroBit != 0) {
+        TRACE((L"ParseNalHeader : uiForbiddenZeroBit != 0"));
+        IF_FAILED_RETURN(E_FAIL);
+    }
+
+    // uiNalRefIdc
+    m_Picture.btNalRefIdc = *pData >> 5;
+    // eNalUnitType
+    m_Picture.NalUnitType = (NAL_UNIT_TYPE)(*pData & 0x1f);
+
+    IF_FAILED_RETURN(m_Picture.NalUnitType != NAL_UNIT_SPS ? E_FAIL : S_OK);
+
+    pData++;
+    dwLeft--;
+
+    m_cBitStream.Init(pData, dwLeft * 8);
+
+    IF_FAILED_RETURN(ParseSPS());
+
+    return hr;
+}
+
+HRESULT CH264NaluParser::ParseVideoConfigDescriptorParsePPS(const BYTE* pData, const DWORD dwSize) {
+
+    HRESULT hr;
+    DWORD dwNaluSize = 0;
+    DWORD dwLeft = dwSize;
+
+    IF_FAILED_RETURN(dwSize > 4 && pData != NULL ? S_OK : E_FAIL);
+
+    if (m_iNaluLenghtSize == 4 || m_iNaluLenghtSize == 3) {
+
+        dwNaluSize = dwSize - m_iNaluLenghtSize;
+    }
+    else {
+
+        // todo : size 1
+        IF_FAILED_RETURN(E_FAIL);
+    }
+
+    pData += m_iNaluLenghtSize;
+    dwLeft -= m_iNaluLenghtSize;
+
+
+    // uiForbiddenZeroBit
+    BYTE uiForbiddenZeroBit = *pData >> 7;
+
+    if (uiForbiddenZeroBit != 0) {
+        TRACE((L"ParseNalHeader : uiForbiddenZeroBit != 0"));
+        IF_FAILED_RETURN(E_FAIL);
+    }
+
+    // uiNalRefIdc
+    m_Picture.btNalRefIdc = *pData >> 5;
+    // eNalUnitType
+    m_Picture.NalUnitType = (NAL_UNIT_TYPE)(*pData & 0x1f);
+
+    IF_FAILED_RETURN(m_Picture.NalUnitType != NAL_UNIT_PPS ? E_FAIL : S_OK);
+
+    pData++;
+    dwLeft--;
+
+    m_cBitStream.Init(pData, dwLeft * 8);
+
+    IF_FAILED_RETURN(ParsePPS());
+
+    return hr;
+}
+
+
 HRESULT CH264NaluParser::ParseVideoConfigDescriptor(const BYTE* pData, const DWORD dwSize){
 
 	HRESULT hr;
@@ -130,14 +224,9 @@ HRESULT CH264NaluParser::ParseNaluHeader(CMFBuffer& pVideoBuffer, DWORD* pdwPars
 		return S_FALSE;
 	}
 
-	if(m_iNaluLenghtSize == 4){
+	if(m_iNaluLenghtSize == 4 || m_iNaluLenghtSize == 3){
 
-		dwNaluSize = MAKE_DWORD(pVideoBuffer.GetStartBuffer());
-	}
-	else if(m_iNaluLenghtSize == 2){
-
-		dwNaluSize = pVideoBuffer.GetStartBuffer()[0] << 8;
-		dwNaluSize |= pVideoBuffer.GetStartBuffer()[1];
+		dwNaluSize = dwSize - m_iNaluLenghtSize;// MAKE_DWORD(pVideoBuffer.GetStartBuffer());
 	}
 	else{
 

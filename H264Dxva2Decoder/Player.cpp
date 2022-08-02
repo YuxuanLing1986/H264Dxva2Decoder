@@ -177,6 +177,7 @@ HRESULT CPlayer::OpenFile(const HWND hWnd, LPCWSTR lpwszFile){
 	BYTE* pVideoData = NULL;
 	DWORD dwBufferSize = 0;
 	MFTIME llMovieDuration = 622800000LL;
+	int32_t startCodeSz = 4;
 	DXVA2_VideoDesc Dxva2Desc;
 
 	IF_FAILED_RETURN(IsShutdown() ? MF_E_SHUTDOWN : S_OK);
@@ -189,9 +190,16 @@ HRESULT CPlayer::OpenFile(const HWND hWnd, LPCWSTR lpwszFile){
 
 	//IF_FAILED_RETURN(m_cH264AtomParser.GetFirstVideoStream(&m_dwTrackId));
 	//IF_FAILED_RETURN(m_cH264AtomParser.GetVideoConfigDescriptor(m_dwTrackId, &pVideoData, &dwBufferSize));
-
-	m_cH2645RawParser.GetNextNaluData(&pVideoData, &dwBufferSize);
-	IF_FAILED_RETURN(m_cH264NaluParser.ParseVideoConfigDescriptor(pVideoData, dwBufferSize));
+	
+	m_cH2645RawParser.GetNextNaluData(&pVideoData, &dwBufferSize, &startCodeSz);
+	m_cH264NaluParser.SetNaluLenghtSize(startCodeSz);
+	IF_FAILED_RETURN(m_cH264NaluParser.ParseVideoConfigDescriptorParseSPS(pVideoData, dwBufferSize));
+	m_cH2645RawParser.GetNextNaluData(&pVideoData, &dwBufferSize, &startCodeSz);
+	m_cH264NaluParser.SetNaluLenghtSize(startCodeSz);
+	IF_FAILED_RETURN(m_cH264NaluParser.ParseVideoConfigDescriptorParsePPS(pVideoData, dwBufferSize));
+	//IF_FAILED_RETURN(m_cH264NaluParser.ParseVideoConfigDescriptor(pVideoData, dwBufferSize));
+	 
+	
 	//TODO: parse sps pps here
 	//IF_FAILED_RETURN(m_cH264AtomParser.GetVideoDuration(m_dwTrackId, llMovieDuration));
 	//IF_FAILED_RETURN(llMovieDuration == 0 ? E_UNEXPECTED : S_OK);
@@ -472,11 +480,12 @@ HRESULT CPlayer::ProcessDecoding(){
 	DWORD dwBufferSize;
 
 	LONGLONG llTime = 2000000LL;
-	int iSubSliceCount = 0;
+	int iSubSliceCount = 0, startCodeSz = 4;
 	DWORD dwParsed;
 	
-
-	IF_FAILED_RETURN(m_cH264AtomParser.GetNextSample(m_dwTrackId, &pVideoData, &dwBufferSize, &llTime));
+	hr = m_cH2645RawParser.GetNextNaluData(&pVideoData, &dwBufferSize, &startCodeSz);
+	m_cH264NaluParser.SetNaluLenghtSize(startCodeSz);
+	//IF_FAILED_RETURN(m_cH264AtomParser.GetNextSample(m_dwTrackId, &pVideoData, &dwBufferSize, &llTime));
 	//TODO: get picture data here
 	llTime = 2000000LL;
 	if(hr == S_FALSE){
@@ -486,12 +495,25 @@ HRESULT CPlayer::ProcessDecoding(){
 		return hr;
 	}
 
+
+
+
 	try{
-
-		IF_FAILED_THROW(m_pVideoBuffer.Reserve(dwBufferSize));
-		memcpy(m_pVideoBuffer.GetStartBuffer(), pVideoData, dwBufferSize);
-		IF_FAILED_THROW(m_pVideoBuffer.SetEndPosition(dwBufferSize));
-
+        if (startCodeSz == 4)
+        {
+            IF_FAILED_THROW(m_pVideoBuffer.Reserve(dwBufferSize));
+            memcpy(m_pVideoBuffer.GetStartBuffer(), pVideoData, dwBufferSize);
+            IF_FAILED_THROW(m_pVideoBuffer.SetEndPosition(dwBufferSize));
+        }else if (startCodeSz == 3)
+        {
+			BYTE btStartCode[4] = { 0x00, 0x00, 0x00, 0x01 };
+			IF_FAILED_THROW(m_pVideoBuffer.Reserve(dwBufferSize + 1));
+			memcpy(m_pVideoBuffer.GetStartBuffer(), btStartCode, 4);
+            memcpy(m_pVideoBuffer.GetStartBuffer() + 4, pVideoData + 3, dwBufferSize - 3);
+            IF_FAILED_THROW(m_pVideoBuffer.SetEndPosition(dwBufferSize + 1));
+        }
+		m_cH264NaluParser.SetNaluLenghtSize(4);
+		m_iNaluLenghtSize = 4;
 		m_pNalUnitBuffer.Reset();
 
 		do{
@@ -527,8 +549,9 @@ HRESULT CPlayer::ProcessDecoding(){
 
 				}
 				else{
-					IF_FAILED_THROW(AddByteAndConvertAvccToAnnexB(m_pNalUnitBuffer));
-					dwParsed += 1;
+					assert(0);
+					//IF_FAILED_THROW(AddByteAndConvertAvccToAnnexB(m_pNalUnitBuffer));
+					//dwParsed += 1;
 				}
 
 #ifdef  USE_STRICT_SHORT_SLICE_CFG

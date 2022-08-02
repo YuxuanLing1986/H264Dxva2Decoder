@@ -13,6 +13,8 @@ public:
 
 	void Reset();
 	HRESULT ParseVideoConfigDescriptor(const BYTE*, const DWORD);
+	HRESULT ParseVideoConfigDescriptorParseSPS(const BYTE*, const DWORD);
+	HRESULT ParseVideoConfigDescriptorParsePPS(const BYTE*, const DWORD);
 	HRESULT ParseNaluHeader(CMFBuffer&, DWORD*);
 
 	const BOOL IsNalUnitCodedSlice() const{ return (m_Picture.NalUnitType == NAL_UNIT_CODED_SLICE || m_Picture.NalUnitType == NAL_UNIT_CODED_SLICE_IDR); }

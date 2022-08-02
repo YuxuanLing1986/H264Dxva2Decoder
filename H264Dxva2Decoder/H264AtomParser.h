@@ -150,7 +150,7 @@ public:
 		return CH264AtomParser::GetNextSample(dwTrackId, ppData, pSize, pllTime);
 	}
 
-	HRESULT GetNextNaluData(BYTE** ppData, DWORD* pSize);
+	HRESULT GetNextNaluData(BYTE** ppData, DWORD* pSize, int32_t* startCodeSz);
 
 	HRESULT ParseVideoSPSAndPPS();
 

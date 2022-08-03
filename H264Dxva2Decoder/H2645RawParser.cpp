@@ -86,39 +86,57 @@ HRESULT CH2645RawParser::GetNextNaluData(BYTE** ppData, DWORD* pSize, int32_t *s
 
     HRESULT hr = S_OK;
     DWORD bytesRead;
-    int64_t nextPos = 0;
+    int64_t nextPos = 0, startRdPos = m_lastNalPos;
     DWORD chunkSz = 0;
-    IF_FAILED_RETURN(m_pByteStream->Reset());
+    
+    //loop here until file end or find pos
+    while (1)
+    {
+        int64_t posInCurrBuf = 0;
+        IF_FAILED_RETURN(m_pByteStream->Reset());
+        m_pByteStream->Seek(startRdPos);
+        hr = m_pByteStream->Read(m_cNaluParserBuffer.GetStartBuffer(), NALU_READ_SIZE, &bytesRead);
+        posInCurrBuf = SearchNextStartCode(m_cNaluParserBuffer.GetStartBuffer(), bytesRead, startCodeSz);
 
-    m_pByteStream->Seek(m_lastNalPos);
-
-    //todo: loop here until file or find pos
-    hr = m_pByteStream->Read(m_cNaluParserBuffer.GetStartBuffer(), NALU_READ_SIZE, &bytesRead);
-    nextPos = SearchNextStartCode(m_cNaluParserBuffer.GetStartBuffer(), bytesRead, startCodeSz);
-
-    if (nextPos != -1)
-    {   
-        chunkSz = nextPos;
-        m_pByteStream->Reset();
-        m_pByteStream->Seek(m_lastNalPos);        
-        m_cNaluParserBuffer.Reserve(chunkSz);
-        m_cNaluParserBuffer.Reset();
-        m_pByteStream->Read(m_cNaluParserBuffer.GetStartBuffer(), chunkSz, &bytesRead);
-
-        IF_FAILED_RETURN(m_cNaluParserBuffer.SetEndPosition(bytesRead));
-
-        *ppData = m_cNaluParserBuffer.GetStartBuffer();
-        *pSize = m_cNaluParserBuffer.GetBufferSize();
-
-        m_lastNalPos += (nextPos);
-        m_vPosInfo.push_back(m_lastNalPos);
-    }
-    else {
-        //just assert here , neet to do loop next;
-        if (bytesRead != 0  && bytesRead < NALU_READ_SIZE)
+        if (posInCurrBuf != -1)
         {
-            return S_FALSE;
+            nextPos += posInCurrBuf;
+            chunkSz = nextPos;
+            m_pByteStream->Reset();
+            m_pByteStream->Seek(m_lastNalPos);
+            m_cNaluParserBuffer.Reserve(chunkSz);
+            m_cNaluParserBuffer.Reset();
+            m_pByteStream->Read(m_cNaluParserBuffer.GetStartBuffer(), chunkSz, &bytesRead);
+
+            IF_FAILED_RETURN(m_cNaluParserBuffer.SetEndPosition(bytesRead));
+
+            *ppData = m_cNaluParserBuffer.GetStartBuffer();
+            *pSize = m_cNaluParserBuffer.GetBufferSize();
+
+            m_lastNalPos += (nextPos);
+            m_vPosInfo.push_back(m_lastNalPos);
+            break;
         }
+        else {
+            //just assert here , neet to do loop next;
+            if(bytesRead != 0)
+            {
+                //not find 00 00 01 or 00 00 00 01 in NALU_READ_SIZE , continue read and search next
+                startRdPos += NALU_READ_SIZE - 4;
+                nextPos += NALU_READ_SIZE - 4;
+                continue;
+                assert(0);
+            }else if (bytesRead == 0)
+            {
+                //reach file end
+                return S_FALSE;
+            }
+            else 
+            {
+                assert(0);
+            }
+        }
+
     }
  
 
